@@ -6,7 +6,7 @@ public class StartPlayer : MonoBehaviour
 {
     [SerializeField] GameObject _Player;
     [SerializeField] GameObject Portal;
-    [SerializeField] Text[] ScoreText;
+    [SerializeField] Text ScoreText;
      int score;
     float interval;
 
@@ -14,8 +14,7 @@ public class StartPlayer : MonoBehaviour
     {
         Player._score = false;
         Player.timescore = false;
-        ScoreText[0].text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
-        ScoreText[1].text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
+        ScoreText.text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
     }
     void Update()
     {
@@ -23,8 +22,7 @@ public class StartPlayer : MonoBehaviour
         if (Player._score && Player.timescore)
         {
             PlayerPrefs.SetFloat("scoreText", PlayerPrefs.GetFloat("scoreText") + score+.4f);
-           ScoreText[0].text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
-           ScoreText[1].text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
+           ScoreText.text = Mathf.Round(PlayerPrefs.GetFloat("scoreText")).ToString();
         }
 
     }
