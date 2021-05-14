@@ -99,11 +99,11 @@ public class Player : MonoBehaviour
                         _songUI = true;
                     }     
                 }
-                    if (counter > 2f)
+                    if (counter > 3f)
                     {
                         timescore = true;
                         SongScore.Play();
-                        if (counter > 4)
+                        if (counter > 5)
                         {
                         
                         _StartPlayer.SetActive(false);
