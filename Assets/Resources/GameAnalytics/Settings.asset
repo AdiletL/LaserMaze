@@ -30,7 +30,7 @@ MonoBehaviour:
   secretKey:
   - 3d7b35f644fe63ebf1e95fe0ae27026b70340097
   Build:
-  - .1
+  - 1
   SelectedPlatformOrganization:
   - 
   SelectedPlatformStudio:
@@ -41,31 +41,30 @@ MonoBehaviour:
   SelectedOrganization: 00000000
   SelectedStudio: 00000000
   SelectedGame: 00000000
-  NewVersion: 6.5.2
-  Changes: '6.5.2
+  NewVersion: 6.5.6
+  Changes: '6.5.6
 
-    - fixed crashes for android devices without google play API
-    (android)
-
-
-    6.5.1
-
-    - added support for OAID (android)
-
-    - added missing
-    export function for UWP lib (uwp)
+    - fixed crash bug for ios
 
 
-    6.5.0
+    6.5.5
 
-    - added app tracking transparency
-    request function (ios)
+    - reverted back
+    to v6.5.2 as crashes happen for ios which have not been narrowed down to what
+    is causing this yet
 
 
-    6.4.1
+    6.5.4
 
-    - added idfa consent status field to
-    events (ios)'
+    - fixed typo error
+
+
+    6.5.3
+
+    - added
+    support for max in impression events
+
+    - fixed dupplicate symbol on ios'
   SignUpOpen: 0
   StudioName: Mad Aliens
   GameName: Lazer Maze

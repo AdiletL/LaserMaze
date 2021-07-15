@@ -8776,7 +8776,7 @@ PrefabInstance:
     - target: {fileID: 4838501112789121461, guid: e5320d59aa5f29148bcd97ba92564f80,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: NextLevel
+      value: SendEventsBuffer
       objectReference: {fileID: 0}
     - target: {fileID: 7714187251898158972, guid: e5320d59aa5f29148bcd97ba92564f80,
         type: 3}
