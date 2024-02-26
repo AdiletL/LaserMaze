@@ -5,15 +5,16 @@ using UnityEngine;
 public class asdf : MonoBehaviour
 {
     [SerializeField] Player _player;
-   [SerializeField] FloatingJoystick _j;
-    Vector3 v;
+    [SerializeField] FloatingJoystick _j;
+    private Vector3 v;
+
     private void Update()
     {
         if (_player.joy)
         {
-            v.x += _player.direct.x * 8;
-            v.y += _player.direct.y ;
-            v.z += _player.direct.z  *8;
+            v.x += _player.direct.x;
+            v.y += _player.direct.y;
+            v.z += _player.direct.z;
         }
         else
         {

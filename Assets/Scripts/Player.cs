@@ -1,181 +1,212 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Assets.Scripts;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
     [SerializeField] ParticleSystem _particle;
-    [SerializeField] FloatingJoystick flot;
-    [SerializeField] Animator _Portal, animatUI;
+
+    [Space]
+    [SerializeField] Animator _Portal;
+
+    [Space]
     [SerializeField] GameObject _StartPlayer;
     [SerializeField] GameObject Pointlight;
-    [SerializeField] Image _imageJoy;
+
+    [Space]
+    [SerializeField] AudioSource SongTeleport, SongLaser, SongUI;
+
+    [Space]
     [SerializeField] int green_red;
-    [SerializeField] AudioSource SongTeleport, SongLaser, SongScore, SongUI;
+
+    private FloatingJoystick flot;
     private CharacterController CharacContr;
+
+    private Animator animatUI;
     private Animator _animator;
+
+    private Image _imageJoy;
+
     private Vector3 moveVect;
     public Vector3 direct;
-    private Rigidbody rb;
-    public static int number;
-    public static bool _score, timescore;
-    private int rom;
-    public  float speed;
-    private float counter;
-    public bool joy;
-    private bool Portal, laser, Animat, _songUI;
-    public delegate void NumberLayer(int number);
-    public event NumberLayer numberlayer;
 
-    public Color StartColor {
-    set { var main = _particle.main;
-            main.startColor = value;
+    public float speed;
+    public bool joy;
+
+    private int numberRoom;
+
+    private bool isPortal;
+    private bool isLaser;
+
+    private int numberColor;
+
+    public event Action<int> numberLayer;
+
+    private void Awake()
+    {
+        flot = FindObjectOfType<FloatingJoystick>();
+        _imageJoy = flot.transform.GetChild(0).GetComponent<Image>();
+        animatUI = flot.transform.parent.GetComponent<Animator>();
+
+        _animator = GetComponent<Animator>();
+        CharacContr = GetComponent<CharacterController>();
+    }
+
+    private void OnEnable()
+    {
+        Portal.OnPortal += OnPortal;
+        Room.OnRoom += OnRoom;
+    }
+    private void OnDisable()
+    {
+        Portal.OnPortal -= OnPortal;
+        Room.OnRoom -= OnRoom;
+    }
+
+    private void OnPortal()
+    {
+        Pointlight.SetActive(false);
+        _Portal.SetTrigger("scale");
+        animatUI.SetTrigger("AnimatUI");
+        SongUI.Play();
+        //_StartPlayer.SetActive(false);
+    }
+    private void OnRoom(int number)
+    {
+        if (number == numberRoom || !isLaser) return;
+
+        switch (numberColor)
+        {
+            case 1:
+                numberColor = 2;
+                SetParticleColor(Color.red);
+                break;
+                
+            case 2:
+                numberColor = 1;
+                SetParticleColor(Color.green);
+                break;
+            default:
+                break;
         }
+
+        _animator.SetTrigger("change_color");
+        numberLayer?.Invoke(numberColor);
+        numberRoom = number;
+    }
+    private void SetParticleColor(Color targetColor)
+    {
+        _particle.startColor = targetColor;
+        _imageJoy.color = targetColor;
     }
     private void Start()
     {
-        var main = _particle.main;
-        
-        _animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
-        CharacContr = GetComponent<CharacterController>();
-        if (green_red == 1)
+        switch (green_red)
         {
-            laser = true;
-            _animator.SetInteger("Red_Green", 2);
-            StartColor = Color.green;
-            _imageJoy.color = Color.green;
+            case 1:
+                _animator.SetInteger("Red_Green", 2);
+                SetParticleColor(Color.green);
+                break;
+            case 2:
+                SetParticleColor(Color.red);
+                _animator.SetInteger("Red_Green", 1);
+                break;
+
+            default:
+                break;
         }
-        else if (green_red == 2)
-        {
-            laser = false;
-            _animator.SetInteger("Red_Green", 1);
-            StartColor = Color.red;
-            _imageJoy.color = Color.red;
-        }
-       number = green_red;
+
+        numberColor = green_red;
     }
     private void Update()
     {
+        if (isPortal) return;
+
         moveVect = Vector3.zero;
         moveVect.x = flot.horizont() * speed;
         moveVect.z = flot.vertic() * speed;
     }
+
+
     private void LateUpdate()
     {
-        if (!Portal)
+        if (Vector3.Angle(Vector3.forward, moveVect) > 0)
         {
-                if (/*Vector3.Angle(Vector3.forward, moveVect) > 1f ||*/ Vector3.Angle(Vector3.forward, moveVect) /*==*/> 0)
-                {
-                    direct = Vector3.RotateTowards(transform.forward, moveVect, 2f, 0.1f);
-                //transform.rotation = Quaternion.LookRotation(direct);
-                    joy = true;
-                }
-                if (Vector3.Angle(Vector3.forward, moveVect) == 0)
-                {
-                    joy = false;
-                }
-                CharacContr.SimpleMove(moveVect * 4f);
+            direct = Vector3.RotateTowards(transform.forward, moveVect, 2f, 0.1f);
+            joy = true;
         }
-        else
+        else if (Vector3.Angle(Vector3.forward, moveVect) == 0)
         {
-            _score = true;
-            Pointlight.SetActive(false);
-            _Portal.SetTrigger("scale");
-            transform.localScale = Vector3.Lerp(transform.localScale, new Vector3(0,0,0), .2f);
-           
-            if (transform.localScale.x < .1f)
-            {
-                
-                counter += Time.deltaTime;
-                if (counter > .5f)
-                {       
-                        animatUI.SetTrigger("AnimatUI");
-                    if (counter >.6f && !_songUI)
-                    {
-                        _songUI = false;
-                         SongUI.Play();
-                        _songUI = true;
-                    }     
-                }
-                    if (counter > 2f)
-                    {
-                        timescore = true;
-                        SongScore.Play();
-                        if (counter > 4)
-                        {
-                        
-                        _StartPlayer.SetActive(false);
-                       gameObject.SetActive(false);
-                    
-                        }
-                    }
-            }
+            joy = false;
         }
-        
+        CharacContr.SimpleMove(moveVect * 4f);
     }
+
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Portal"))
         {
-            Portal = true;
             SongTeleport.Play();
-            
+
         }
-       if (other.CompareTag("LaserRed"))
-        { laser = true; SongLaser.Play(); Animat = true; }
+        if (other.CompareTag("LaserRed"))
+        { 
+            SongLaser.Play();
+            isLaser = true;
+        }
 
         if (other.CompareTag("LaserGreen"))
-        { laser = false; SongLaser.Play(); Animat = true; }
-
-        if (other.CompareTag("Room"))
-        {
-            if (Room.rooms != rom)
-            {
-                if (laser && Animat)
-                {
-                    _animator.SetTrigger("change_color");
-
-                    _imageJoy.color = Color.green;
-                    number = 1;
-                    StartColor = Color.green;
-
-                }
-                else if(!laser && Animat)
-                {
-                    _animator.SetTrigger("change_color");
-
-                    _imageJoy.color = Color.red;
-                    number = 2;
-                    StartColor = Color.red;
-
-                } 
-                numberlayer.Invoke(number);
-                rom = Room.rooms;
-            }
+        { 
+            SongLaser.Play();
+            isLaser = true;
         }
-        
     }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("OneLaserRed"))
         {
-            _animator.SetTrigger("change_color");
             SongLaser.Play();
-            _imageJoy.color = Color.green;
-            number = 1;
-            StartColor = Color.green;
-            numberlayer.Invoke(number);
+            switch (numberColor)
+            {
+                case 1:
+                    numberColor = 2;
+                    SetParticleColor(Color.red);
+                    break;
+
+                case 2:
+                    numberColor = 1;
+                    SetParticleColor(Color.green);
+                    break;
+                default:
+                    break;
+            }
+
+            _animator.SetTrigger("change_color");
+            numberLayer?.Invoke(numberColor);
         }
         if (other.CompareTag("OneLaserGreen"))
         {
-            _animator.SetTrigger("change_color");
             SongLaser.Play();
-            _imageJoy.color = Color.red;
-            number = 2;
-            StartColor = Color.red;
-            numberlayer.Invoke(number);
+            switch (numberColor)
+            {
+                case 1:
+                    numberColor = 2;
+                    SetParticleColor(Color.red);
+                    break;
+
+                case 2:
+                    numberColor = 1;
+                    SetParticleColor(Color.green);
+                    break;
+                default:
+                    break;
+            }
+
+            _animator.SetTrigger("change_color");
+            numberLayer?.Invoke(numberColor);
         }
     }
 }

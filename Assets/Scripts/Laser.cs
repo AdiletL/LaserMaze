@@ -4,33 +4,30 @@ using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
-    [SerializeField] Player _player;
-    BoxCollider _box;
-    [SerializeField] int num;
+    [SerializeField] private Player _player;
+    [SerializeField] private int num;
+
+    private BoxCollider _box;
+
+    private void OnEnable()
+    {
+        _player.numberLayer += ON_Off;
+    }
+    private void OnDisable()
+    {
+        _player.numberLayer -= ON_Off;
+    }
 
     private void Start()
     {
         _box = GetComponent<BoxCollider>();
-        _player.numberlayer += ON_Off;
     }
-    void ON_Off(int sdf)
-    {
-        if (Player.number == 2 && num == 2)
-        {
-                _box.isTrigger = true;
-        }
-        else if (Player.number == 1 && num == 2)
-        {
-             _box.isTrigger = false;
-        }
 
-        if (Player.number ==1 && num == 1)
-        {
+    private void ON_Off(int number)
+    {
+        if (number == num)
             _box.isTrigger = true;
-        }
-        else if (Player.number == 2 && num ==1)
-        {
+        else
             _box.isTrigger = false;
-        }
     }
 }

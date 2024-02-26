@@ -1,52 +1,50 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using System;
+using UnityEngine.UI;
 
 public class NextLvl : MonoBehaviour
 {
-    int lvl = 0;
-    public void SendLevelEnd(int lvl)
+    [SerializeField] private Button nextBtn;
+    [SerializeField] private Button restartBtn;
+
+    private void Start()
     {
-        Dictionary<string, object> tutParams = new Dictionary<string, object>();
-        tutParams["Level Number"] = lvl;
-        Debug.Log(lvl);
+        nextBtn.onClick.AddListener(SendEventsBuffer);
+        restartBtn.onClick.AddListener(Restart);
     }
-    public void SendEventsBuffer() 
+
+    public void SendEventsBuffer()
     {
-        PlayerPrefs.SetInt("lvl", PlayerPrefs.GetInt("lvl", lvl) + 1);
+        int level = 1;
+
+        if (PlayerPrefs.HasKey("level"))
+            level = PlayerPrefs.GetInt("level");
+
+        if (level < 11) level++;
+        else level = 1;
+
+        PlayerPrefs.SetInt("level", level);
         PlayerPrefs.Save();
-        
-        if (PlayerPrefs.GetInt("lvl") < 11)
-        {
-        SceneManager.LoadScene(PlayerPrefs.GetInt("lvl", lvl));
-        }
-        else 
-        {
-            PlayerPrefs.SetInt("lvl", 1);
-            PlayerPrefs.Save();
-            SceneManager.LoadScene(PlayerPrefs.GetInt("lvl", lvl));
-        }GamManager.instance.OnLevelCompleted(PlayerPrefs.GetInt("lvl"));
-        FacebookManager.Instance.LevelCompleted(PlayerPrefs.GetInt("lvl"));
-        SendLevelEnd(PlayerPrefs.GetInt("lvl"));
-        AppMetrica.Instance.SendEventsBuffer();
+
+        SceneManager.LoadScene(level - 1);
+
+        if (level > 3)
+            YG.YandexGame.FullscreenShow();
     }
-   public void Restart() { 
-        SceneManager.LoadScene(PlayerPrefs.GetInt("lvl")); 
-        GamManager.instance.OnLevelCompleted(PlayerPrefs.GetInt("lvl"));
-        FacebookManager.Instance.LevelCompleted(PlayerPrefs.GetInt("lvl"));
-        AppMetricaPush.instance.SendLevelEnd(PlayerPrefs.GetInt("lvl"));
-    }
-    private void OnApplicationFocus(bool pause)
+    public void Restart()
     {
-        if (!pause)
-        {
-            AppMetrica.Instance.SendEventsBuffer();
-        }
+        int level = 1;
+        if (PlayerPrefs.HasKey("level"))
+            level = PlayerPrefs.GetInt("level");
+
+        SceneManager.LoadScene(level);
+        if (level > 1)
+            YG.YandexGame.RewVideoShow(1);
     }
-    private void OnApplicationQuit()
-    { 
-        AppMetrica.Instance.SendEventsBuffer();
+
+    private void OnDestroy()
+    {
+        nextBtn.onClick.RemoveListener(SendEventsBuffer);
+        restartBtn.onClick.RemoveListener(Restart);
     }
 }
